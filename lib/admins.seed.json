@@ -1,0 +1,18 @@
+[
+  {
+    "username": "admin1",
+    "hash": "7af3bf12e7e86e72e962cb34553f79ff:1ec7662a518091897204307e43c43b51c732f69bf852a3f0530798b9353e4ebd"
+  },
+  {
+    "username": "admin2",
+    "hash": "eb04f2fdce9251551b4b582bf1d4f6cb:5992165e5759e97bac1bf13de8dc1acf65e0750f75821dae8d310e68b764a9de"
+  },
+  {
+    "username": "admin3",
+    "hash": "c9511503498c19f79d062d59b525e886:b233fb43583214366c18290487725fc433454616dd0e5425538f47b3ee3ae635"
+  },
+  {
+    "username": "admin4",
+    "hash": "e2759a549d4b56c9db515d3c2af0a699:7bc585f2c526019ae4a8abd7ee66c0fe178a7929042a1dd7468477ecad311db0"
+  }
+]

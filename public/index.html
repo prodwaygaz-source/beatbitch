@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BEAT STORE — Underground</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:#f4f4f4;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding-bottom:110px}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit}
+nav{height:64px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;background:#090909ee;backdrop-filter:blur(10px);z-index:50}
+.logo{font-weight:900;letter-spacing:-1px;font-size:20px;display:flex;align-items:center;gap:8px}
+.logo span{background:#00ff66;color:#000;padding:2px 6px;border-radius:3px;font-size:10px}
+.nav-btns{display:flex;gap:10px}
+.btn-nav{background:#181818;border:1px solid #333;color:#eee;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-nav.active{background:#00ff66;color:#000;border-color:#00ff66}
+
+.hero{padding:40px 20px;border-bottom:1px solid #222;background:radial-gradient(circle at top right, #1a2a1f 0%, #090909 60%)}
+.hero h1{font-size:clamp(32px, 8vw, 64px);line-height:1;letter-spacing:-1px;margin:10px 0}
+.hero p{color:#888;font-size:14px;max-width:500px;margin:0 0 20px 0}
+
+.container{padding:20px;max-width:1200px;margin:0 auto}
+.topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.topline h2{font-size:24px;margin:0}
+
+.filter-label{font-size:11px;color:#666;font-weight:700;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase}
+.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:16px;scrollbar-width:none}
+.filter{background:#151515;border:1px solid #262626;color:#888;padding:8px 16px;border-radius:20px;font-size:12px;white-space:nowrap;cursor:pointer}
+.filter.active{background:#00ff66;color:#000;border-color:#00ff66;font-weight:700}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:16px}
+.beat-card{background:#111;border:1px solid #222;border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.cover-box{width:100%;aspect-ratio:1/1;background:#1a1a1a;position:relative;display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center}
+.cover-title{font-size:28px;font-weight:900;color:#333;text-transform:uppercase}
+.play-btn-overlay{position:absolute;width:50px;height:50px;border-radius:50%;background:#00ff66;color:#000;border:none;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(0,255,102,0.4)}
+.card-info{padding:16px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+.beat-name{font-size:18px;font-weight:700;margin-bottom:4px}
+.beat-meta{font-size:12px;color:#777;margin-bottom:12px}
+.card-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:auto}
+.price{font-size:16px;font-weight:800;color:#00ff66}
+.btn-buy{background:#fff;color:#000;border:none;padding:8px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer}
+
+/* ADMIN PANEL */
+.admin-section{background:#111;border:1px solid #222;border-radius:12px;padding:20px;margin-bottom:24px}
+.admin-title{font-size:18px;font-weight:700;margin-top:0;margin-bottom:16px;color:#00ff66;display:flex;align-items:center;gap:8px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:12px;margin-bottom:16px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:12px;color:#aaa}
+.form-group input, .form-group select{background:#1a1a1a;border:1px solid #333;color:#fff;padding:10px;border-radius:6px;font-size:13px}
+.btn-submit{background:#00ff66;color:#000;border:none;padding:12px;border-radius:6px;font-weight:700;cursor:pointer;width:100%}
+
+.table-wrapper{overflow-x:auto}
+table{width:100%;border-collapse:collapse;text-align:left;font-size:13px}
+th,td{padding:12px;border-bottom:1px solid #222}
+th{color:#777;font-weight:600}
+.btn-action{padding:6px 10px;border-radius:4px;border:none;font-size:11px;font-weight:700;cursor:pointer;margin-right:4px}
+.btn-edit{background:#333;color:#fff}
+.btn-delete{background:#ff3355;color:#fff}
+
+/* PLAYER BAR ADJUSTMENTS */
+.player-bar{position:fixed;bottom:0;left:0;right:0;background:#141414;border-top:1px solid #262626;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;z-index:100}
+.player-info{display:flex;align-items:center;gap:12px;width:250px}
+.player-cover{width:42px;height:42px;background:#222;border-radius:6px;background-size:cover}
+.player-text{overflow:hidden}
+.player-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.player-genre{font-size:11px;color:#777}
+.player-controls{flex:1;display:flex;flex-direction:column;gap:6px;max-width:550px;margin:0 20px}
+.player-btns{display:flex;align-items:center;justify-content:center;gap:16px}
+.btn-control{background:none;border:none;color:#aaa;font-size:16px;cursor:pointer;transition:0.2s;padding:0}
+.btn-control:hover{color:#fff}
+.btn-play-main{width:38px;height:38px;border-radius:50%;background:#fff;border:none;color:#000;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.progress-container{display:flex;align-items:center;gap:10px;font-size:11px;color:#666}
+.progress-bar{flex:1;height:4px;background:#333;border-radius:2px;cursor:pointer;position:relative}
+.progress-fill{height:100%;background:#00ff66;border-radius:2px;width:0%}
+
+/* VOLUME CONTROL */
+.volume-control{display:flex;align-items:center;gap:8px;width:160px;justify-content:flex-end}
+.volume-icon{font-size:14px;color:#888;cursor:pointer}
+.volume-slider{width:80px;accent-color:#00ff66;cursor:pointer;height:4px}
+
+/* MODAL / CART */
+.modal-backdrop{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal-card{background:#141414;border:1px solid #262626;border-radius:12px;width:100%;max-width:450px;padding:24px;position:relative}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:#777;font-size:20px;cursor:pointer}
+.qr-img{width:180px;height:180px;background:#fff;margin:16px auto;display:block;border-radius:8px;padding:8px}
+
+.hidden{display:none !important}
+.tag{background:#00ff66;color:#000;padding:3px 8px;border-radius:12px;font-size:12px;font-weight:700}.tag b{cursor:pointer;margin-left:6px}.qr-actions{display:flex;gap:8px;margin-bottom:12px}.qr-actions a,.qr-actions button{flex:1;text-align:center;background:#222;color:#fff;border:1px solid #333;padding:9px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">HOMEPLUG® <span>PROD</span></div>
+  <div class="nav-btns">
+    <button class="btn-nav active" id="nav-store" onclick="switchTab('store')">🏪 ร้านค้า</button>
+    <button class="btn-nav" id="nav-admin" onclick="switchTab('admin')">⚙️ แอดมิน</button>
+    <button class="btn-nav" onclick="openCart()">🛒 ตะกร้า (<span id="cart-count">0</span>)</button>
+  </div>
+</nav>
+
+<!-- STORE VIEW -->
+<div id="view-store">
+  <div class="hero">
+    <span style="color:#00ff66;font-size:12px;font-weight:700;letter-spacing:1px">BEAT STORE</span>
+    <h1>BEATS FOR THE NEXT SOUND</h1>
+    <p>บีทคุณภาพสูงสำหรับศิลปินสไตล์ Drill, Trap, Rage, Pluggnb สั่งซื้อง่าย รับไฟล์ทันที</p>
+  </div>
+
+  <div class="container">
+    <div class="filter-label">GENRES / แนวเพลง</div>
+    <div class="filters" id="genre-filters">
+      <button class="filter active" onclick="setFilter('genre', 'all')">ทั้งหมด (ALL)</button>
+      <button class="filter" onclick="setFilter('genre', 'drill')">DRILL</button>
+      <button class="filter" onclick="setFilter('genre', 'trap')">TRAP</button>
+      <button class="filter" onclick="setFilter('genre', 'rage')">RAGE</button>
+      <button class="filter" onclick="setFilter('genre', 'pluggnb')">PLUGGNB</button>
+    </div>
+
+    <div class="filter-label">PRODUCERS / ผู้ผลิตบีท</div>
+    <div class="filters" id="producer-filters"></div>
+
+    <div class="grid" id="beat-grid"></div>
+  </div>
+</div>
+
+<!-- ADMIN VIEW -->
+<div id="view-admin" class="container hidden">
+  <div class="topline">
+    <h2>ระบบจัดการหลังบ้าน (Admin Dashboard)</h2>
+  </div>
+
+  <!-- ADD / EDIT BEAT -->
+  <div class="admin-section">
+    <div class="admin-title">➕ <span id="form-title">เพิ่มบีทใหม่</span></div>
+    <form id="beat-form" onsubmit="saveBeat(event)">
+      <input type="hidden" id="edit-id">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>ชื่อบีท *</label>
+          <input type="text" id="input-title" required placeholder="เช่น GHOST">
+        </div>
+        
+        <div class="form-group">
+          <label>แนวเพลง (GENRE) *</label>
+          <select id="input-genre">
+            <option value="drill">DRILL</option>
+            <option value="trap">TRAP</option>
+            <option value="rage">RAGE</option>
+            <option value="pluggnb">PLUGGNB</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="grid-column:span 2"><label>ผู้ผลิต (PRODUCER) * — พิมพ์แล้วกด Enter เพื่อเพิ่มได้หลายคน</label>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:6px">
+            <span id="tags" style="display:contents"></span>
+            <input id="tag-input" list="producer-list" placeholder="เช่น กิมเค" style="flex:1;min-width:120px;background:none;border:none;outline:none;color:#fff;padding:4px">
+          </div><datalist id="producer-list"></datalist></div>
+
+        <div class="form-group">
+          <label>BPM</label>
+          <input type="number" id="input-bpm" placeholder="140">
+        </div>
+        <div class="form-group">
+          <label>KEY</label>
+          <input type="text" id="input-key" placeholder="C MIN">
+        </div>
+        <div class="form-group">
+          <label>ราคา (บาท) *</label>
+          <input type="number" id="input-price" required placeholder="590">
+        </div>
+        <div class="form-group">
+          <label>ไฟล์เสียง (MP3/WAV)</label>
+          <input type="file" id="input-audio" accept="audio/*">
+        </div>
+        <div class="form-group">
+          <label>รูปภาพปก</label>
+          <input type="file" id="input-cover" accept="image/*">
+        </div>
+      </div>
+      <button type="submit" class="btn-submit" id="btn-save">บันทึกบีท</button>
+    </form>
+  </div>
+
+  <!-- BEAT LIST TABLE -->
+  <div class="admin-section">
+    <div class="admin-title">🎵 รายการบีททั้งหมด</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ปก</th>
+            <th>ชื่อบีท</th>
+            <th>GENRE</th>
+            <th>PRODUCER</th>
+            <th>BPM/KEY</th>
+            <th>ราคา</th>
+            <th>การจัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="admin-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ORDERS -->
+  <div class="admin-section">
+    <div class="admin-title">💰 ออเดอร์ล่าสุด <button class="btn-action" style="margin-left:auto" onclick="loadOrders()">รีเฟรช</button> <button class="btn-action btn-delete" onclick="logout()">ออกจากระบบ</button></div>
+    <table style="width:100%;font-size:13px"><thead><tr><th align="left">เวลา</th><th align="left">อีเมล</th><th align="left">ยอด</th><th align="left">สถานะ</th></tr></thead><tbody id="orders-body"></tbody></table>
+  </div>
+</div>
+
+<!-- PLAYER BAR (UPDATED WITH PREV/NEXT & VOLUME) -->
+<div class="player-bar">
+  <div class="player-info">
+    <div class="player-cover" id="player-cover"></div>
+    <div class="player-text">
+      <div class="player-name" id="player-title">เลือกเพลงเพื่อรับฟัง</div>
+      <div class="player-genre" id="player-genre">-</div>
+    </div>
+  </div>
+
+  <div class="player-controls">
+    <div class="player-btns">
+      <button class="btn-control" onclick="prevBeat()">⏮</button>
+      <button class="btn-play-main" id="btn-main-play" onclick="togglePlay()">▶</button>
+      <button class="btn-control" onclick="nextBeat()">⏭</button>
+    </div>
+    <div class="progress-container">
+      <span id="curr-time">0:00</span>
+      <div class="progress-bar" onclick="seekAudio(event)">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <span id="dur-time">0:00</span>
+    </div>
+  </div>
+
+  <div class="volume-control">
+    <span class="volume-icon" id="vol-icon" onclick="toggleMute()">🔊</span>
+    <input type="range" class="volume-slider" id="vol-slider" min="0" max="1" step="0.01" value="1" oninput="changeVolume(this.value)">
+  </div>
+</div>
+
+<!-- CART / CHECKOUT MODAL -->
+<div class="modal-backdrop" id="modal-cart">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeCart()">✕</button>
+    <h3 style="margin-top:0">🛒 ตะกร้าสินค้า</h3>
+    <div id="cart-items" style="margin-bottom:16px"></div>
+    <div style="display:flex;justify-content:space-between;font-weight:700;font-size:16px;border-top:1px solid #333;padding-top:12px">
+      <span>ราคารวมทั้งหมด:</span>
+      <span style="color:#00ff66" id="cart-total">฿0</span>
+    </div>
+    <hr style="border-color:#222;margin:16px 0">
+    <h4 style="margin:0 0 8px 0">ชำระเงินผ่าน PromptPay</h4>
+    <input type="email" id="buyer-email" placeholder="อีเมลของคุณ (ใช้รับใบเสร็จ)" style="width:100%;margin-bottom:10px;box-sizing:border-box">
+    <button class="btn-submit" id="btn-pay" onclick="startPay()">สร้าง QR ชำระเงิน</button>
+    <p style="font-size:13px;color:#aaa;margin:12px 0" id="pay-info-text"></p>
+    <img src="" id="display-qr" class="qr-img hidden" alt="PromptPay QR">
+    <div class="qr-actions hidden" id="qr-actions"><a id="qr-dl" target="_blank" rel="noopener">⬇ เปิด/ดาวน์โหลด QR</a></div>
+    <div id="downloads"></div>
+  </div>
+</div>
+
+<audio id="audio-element"></audio>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let beats=[],cart=[],tags=[],gF='all',pF='all',idx=-1,isAdmin=false,pollT=null;
+const audio=$('audio-element');
+
+async function api(p,o={}){
+  const r=await fetch('/api'+p,o);
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.error||'HTTP '+r.status);
+  return d;
+}
+async function load(){
+  beats=await api('/beats');
+  cart=cart.filter(id=>beats.some(b=>b.id===id));
+  $('cart-count').textContent=cart.length;
+  renderFilters();renderBeats();
+}
+async function adminAuth(){
+  if(isAdmin)return true;
+  try{const m=await api('/auth');if(m.user){isAdmin=true;return true}}catch(e){}
+  const username=prompt('ชื่อผู้ใช้แอดมิน');if(!username)return false;
+  const password=prompt('รหัสผ่าน');if(!password)return false;
+  try{await api('/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});isAdmin=true;return true}
+  catch(e){alert(e.message);return false}
+}
+async function logout(){await api('/auth',{method:'DELETE'});isAdmin=false;switchTab('store')}
+async function loadOrders(){
+  try{const o=await api('/orders');$('orders-body').innerHTML=o.map(x=>`<tr><td>${new Date(x.created_at).toLocaleString('th-TH')}</td><td>${esc(x.email)}</td><td>฿${x.total.toLocaleString()}</td><td>${x.status==='paid'?'✅ จ่ายแล้ว':esc(x.status)}</td></tr>`).join('')}catch(e){alert(e.message)}
+}
+async function switchTab(t){
+  if(t==='admin'&&!(await adminAuth()))return;
+  $('view-store').classList.toggle('hidden',t!=='store');
+  $('view-admin').classList.toggle('hidden',t!=='admin');
+  $('nav-store').classList.toggle('active',t==='store');
+  $('nav-admin').classList.toggle('active',t==='admin');
+  if(t==='admin'){renderAdmin();loadOrders()}
+}
+
+// FILTERS (Multi-Producer: กรองด้วย includes)
+const producers=()=>[...new Set(beats.flatMap(b=>b.producers))].sort();
+function renderFilters(){
+  if(pF!=='all'&&!producers().includes(pF))pF='all';
+  const box=$('producer-filters');box.innerHTML='';
+  ['all',...producers()].forEach(p=>{
+    const b=document.createElement('button');
+    b.className='filter'+(p===pF?' active':'');
+    b.textContent=p==='all'?'ทั้งหมด (ALL)':p;
+    b.onclick=()=>{pF=p;renderFilters();renderBeats()};
+    box.appendChild(b);
+  });
+  $('producer-list').innerHTML=producers().map(p=>`<option value="${esc(p)}">`).join('');
+}
+function setFilter(t,v){
+  gF=v;
+  document.querySelectorAll('#genre-filters .filter').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');renderBeats();
+}
+const filtered=()=>beats.filter(b=>(gF==='all'||b.genre===gF)&&(pF==='all'||b.producers.includes(pF)));
+
+function renderBeats(){
+  $('beat-grid').innerHTML=filtered().map(b=>`
+    <div class="beat-card">
+      <div class="cover-box" style="${b.cover?`background-image:url(${esc(b.cover)})`:''}">
+        ${b.cover?'':`<div class="cover-title">${esc(b.title.substring(0,3))}</div>`}
+        <button class="play-btn-overlay" onclick="playBeatById(${b.id})">▶</button>
+      </div>
+      <div class="card-info"><div>
+        <div class="beat-name">${esc(b.title)}</div>
+        <div class="beat-meta">${esc((b.genre||'').toUpperCase())} • ${esc(b.producers.join(' x '))} • ${b.bpm||'-'} BPM</div>
+      </div><div class="card-bottom"><div class="price">฿${b.price}</div>
+        <button class="btn-buy" onclick="addToCart(${b.id})">+ เพิ่มลงตะกร้า</button></div></div>
+    </div>`).join('');
+}
+
+// PLAYER
+function playBeatById(id){const l=filtered();idx=l.findIndex(b=>b.id===id);if(idx>=0)loadAndPlay(l[idx])}
+function loadAndPlay(b){
+  if(!b)return;
+  $('player-title').textContent=b.title;
+  $('player-genre').textContent=`${(b.genre||'').toUpperCase()} (${b.producers.join(' x ')}) - ฿${b.price}`;
+  $('player-cover').style.backgroundImage=b.cover?`url(${b.cover})`:'none';
+  if(b.audio){audio.src=b.audio;audio.play();$('btn-main-play').textContent='⏸'}
+  else{alert('บีทนี้ยังไม่มีการอัปโหลดไฟล์เสียง');$('btn-main-play').textContent='▶'}
+}
+function togglePlay(){
+  if(!audio.src)return;
+  if(audio.paused){audio.play();$('btn-main-play').textContent='⏸'}else{audio.pause();$('btn-main-play').textContent='▶'}
+}
+function prevBeat(){const l=filtered();if(l.length){idx=(idx-1+l.length)%l.length;loadAndPlay(l[idx])}}
+function nextBeat(){const l=filtered();if(l.length){idx=(idx+1)%l.length;loadAndPlay(l[idx])}}
+function changeVolume(v){audio.volume=v;$('vol-icon').textContent=v==0?'🔇':v<0.5?'🔉':'🔊'}
+function toggleMute(){
+  const s=$('vol-slider');
+  if(audio.volume>0){audio.dataset.lastVol=audio.volume;audio.volume=0;s.value=0;$('vol-icon').textContent='🔇'}
+  else{const l=audio.dataset.lastVol||1;audio.volume=l;s.value=l;$('vol-icon').textContent=l<0.5?'🔉':'🔊'}
+}
+const fmtT=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+audio.ontimeupdate=()=>{
+  if(!audio.duration)return;
+  $('progress-fill').style.width=(audio.currentTime/audio.duration*100)+'%';
+  $('curr-time').textContent=fmtT(audio.currentTime);$('dur-time').textContent=fmtT(audio.duration);
+};
+audio.onended=nextBeat;
+function seekAudio(e){
+  if(!audio.duration)return;
+  const r=e.currentTarget.getBoundingClientRect();
+  audio.currentTime=(e.clientX-r.left)/r.width*audio.duration;
+}
+
+// ADMIN: Tag input
+function addTag(v){
+  v=v.replace(/,/g,'').replace(/^\s*prod\.?\s*/i,'').trim();
+  if(!v)return;
+  v='PROD. '+v;
+  if(!tags.includes(v))tags.push(v);
+  renderTags();
+}
+function renderTags(){
+  $('tags').innerHTML=tags.map((t,i)=>`<span class="tag">${esc(t)}<b onclick="tags.splice(${i},1);renderTags()">✕</b></span>`).join('');
+}
+$('tag-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter'||e.key===','){e.preventDefault();addTag(e.target.value);e.target.value=''}
+});
+$('tag-input').addEventListener('change',e=>{addTag(e.target.value);e.target.value=''});
+
+function renderAdmin(){
+  $('admin-table-body').innerHTML=beats.map(b=>`<tr>
+    <td><div style="width:32px;height:32px;background:#222;border-radius:4px;background-size:cover;background-image:url(${esc(b.cover)})"></div></td>
+    <td><b>${esc(b.title)}</b></td>
+    <td><span style="color:#00ff66">${esc((b.genre||'-').toUpperCase())}</span></td>
+    <td>${esc(b.producers.join(' x '))}</td>
+    <td>${b.bpm||'-'} / ${esc(b.bkey||'-')}</td><td>฿${b.price}</td>
+    <td><button class="btn-action btn-edit" onclick="editBeat(${b.id})">แก้ไข</button>
+    <button class="btn-action btn-delete" onclick="deleteBeat(${b.id})">ลบ</button></td></tr>`).join('');
+}
+async function upFile(file){
+  const {upload}=await import('https://esm.sh/@vercel/blob@0.27.0/client');
+  return (await upload(file.name,file,{access:'public',handleUploadUrl:'/api/upload'})).url;
+}
+async function saveBeat(e){
+  e.preventDefault();
+  addTag($('tag-input').value);$('tag-input').value='';
+  if(!tags.length)return alert('กรุณาใส่ชื่อ Producer อย่างน้อย 1 คน');
+  const id=$('edit-id').value,btn=e.submitter||document.querySelector('#beat-form [type=submit]');
+  if(btn)btn.disabled=true;
+  try{
+    const body={title:$('input-title').value,genre:$('input-genre').value,producers:tags,bpm:$('input-bpm').value,bkey:$('input-key').value,price:$('input-price').value};
+    if($('input-audio').files[0])body.audio=await upFile($('input-audio').files[0]);
+    if($('input-cover').files[0])body.cover=await upFile($('input-cover').files[0]);
+    await api(id?'/beats?id='+id:'/beats',{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    await load();renderAdmin();resetForm();alert('บันทึกข้อมูลเรียบร้อย!');
+  }catch(err){alert(err.message)}finally{if(btn)btn.disabled=false}
+}
+function editBeat(id){
+  const b=beats.find(x=>x.id===id);if(!b)return;
+  $('edit-id').value=b.id;$('input-title').value=b.title;$('input-genre').value=b.genre;
+  $('input-bpm').value=b.bpm||'';$('input-key').value=b.bkey||'';$('input-price').value=b.price;
+  tags=[...b.producers];renderTags();
+  $('form-title').textContent='แก้ไขบีท: '+b.title;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+async function deleteBeat(id){
+  if(!confirm('คุณต้องการลบบีทนี้ใช่หรือไม่?'))return;
+  try{await api('/beats?id='+id,{method:'DELETE'});await load();renderAdmin()}catch(e){alert(e.message)}
+}
+function resetForm(){
+  $('beat-form').reset();$('edit-id').value='';tags=[];renderTags();
+  $('form-title').textContent='เพิ่มบีทใหม่';
+}
+// CART + Dynamic QR
+function addToCart(id){if(!cart.includes(id))cart.push(id);$('cart-count').textContent=cart.length}
+function rmCart(id){cart=cart.filter(x=>x!==id);$('cart-count').textContent=cart.length;openCart()}
+function openCart(){
+  clearInterval(pollT);
+  $('modal-cart').style.display='flex';
+  const items=cart.map(id=>beats.find(b=>b.id===id)).filter(Boolean);
+  $('cart-items').innerHTML=items.map(b=>`<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px">
+    <span>${esc(b.title)}</span><span><b>฿${b.price}</b> <a onclick="rmCart(${b.id})" style="cursor:pointer;color:#ff3355">✕</a></span></div>`).join('')
+    ||'<p style="color:#777;font-size:13px">ตะกร้าว่าง</p>';
+  $('cart-total').textContent='฿'+items.reduce((s,b)=>s+b.price,0).toLocaleString();
+  $('display-qr').classList.add('hidden');$('qr-actions').classList.add('hidden');
+  $('pay-info-text').textContent='';$('downloads').innerHTML='';$('btn-pay').style.display=items.length?'':'none';
+}
+async function startPay(){
+  const btn=$('btn-pay');btn.disabled=true;
+  try{
+    const d=await api('/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids:cart,email:$('buyer-email').value})});
+    $('display-qr').src=d.qr;$('qr-dl').href=d.qr;
+    $('display-qr').classList.remove('hidden');$('qr-actions').classList.remove('hidden');
+    $('pay-info-text').innerHTML=`สแกนเพื่อชำระ <b>฿${d.total.toLocaleString()}</b><br>⏳ รอการชำระเงิน — ระบบจะปลดล็อกไฟล์ให้อัตโนมัติ`;
+    btn.style.display='none';
+    pollT=setInterval(()=>pollOrder(d),3000);
+  }catch(e){$('pay-info-text').textContent=e.message}finally{btn.disabled=false}
+}
+async function pollOrder(d){
+  try{
+    const o=await api('/order?id='+d.orderId+'&token='+d.token);
+    if(o.status==='paid'){
+      clearInterval(pollT);cart=[];$('cart-count').textContent=0;
+      $('display-qr').classList.add('hidden');$('qr-actions').classList.add('hidden');
+      $('pay-info-text').innerHTML='✅ ชำระเงินสำเร็จ! ดาวน์โหลดไฟล์ได้เลย';
+      $('downloads').innerHTML=o.downloads.map(x=>`<a class="btn-submit" style="display:block;text-align:center;margin-bottom:8px;text-decoration:none" href="${esc(x.audio)}" download target="_blank" rel="noopener">⬇ ${esc(x.title)}</a>`).join('');
+    }else if(o.status==='expired'){clearInterval(pollT);$('pay-info-text').textContent='QR หมดอายุ กรุณาสร้างใหม่';$('btn-pay').style.display=''}
+  }catch(e){}
+}
+function closeCart(){clearInterval(pollT);$('modal-cart').style.display='none'}
+
+load().catch(e=>alert('โหลดข้อมูลไม่สำเร็จ: '+e.message));
+</script>
+</body>
+</html>
